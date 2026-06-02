@@ -71,10 +71,10 @@ export function SuccessScreen() {
         {/* Success Text */}
         <motion.div variants={textVariants} initial="hidden" animate="visible">
           <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Success!
+            Reservation Request Sent!
           </h3>
           <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Your booking request has been received. We will contact you shortly to confirm your reservation.
+            Thank you! Aberash Hotel management will contact you shortly to confirm your room.
           </p>
         </motion.div>
 

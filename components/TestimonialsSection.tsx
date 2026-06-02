@@ -141,7 +141,7 @@ export function TestimonialsSection() {
                     {/* Review Text */}
                     <blockquote className="mb-8">
                       <p className="text-2xl sm:text-3xl font-light text-gray-800 dark:text-gray-100 leading-relaxed italic">
-                        "{reviews[currentIndex].text}"
+                        &ldquo;{reviews[currentIndex].text}&rdquo;
                       </p>
                     </blockquote>
 
@@ -226,7 +226,7 @@ export function TestimonialsSection() {
                   {renderStars(review.rating)}
                 </div>
                 <p className="text-lg font-light text-gray-800 dark:text-gray-100 mb-4 italic">
-                  "{review.text}"
+                  &ldquo;{review.text}&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#d4af37] to-[#a68c28] flex items-center justify-center">

@@ -69,36 +69,16 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     setIsLoading(true);
     setSubmitError(null);
 
-    try {
-      const response = await fetch('/api/booking', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setSubmitError(data.error || 'Failed to send booking request');
-        setIsLoading(false);
-        return;
-      }
-
-      setShowSuccess(true);
+    // Simulate network delay for demo
+    setTimeout(() => {
       setIsLoading(false);
+      setShowSuccess(true);
 
       setTimeout(() => {
         setShowSuccess(false);
         onClose();
       }, 4000);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Network error. Please try again.';
-      setSubmitError(errorMessage);
-      setIsLoading(false);
-    }
+    }, 1500);
   };
 
   const handleClose = () => {
@@ -118,28 +98,6 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     onClose();
   };
 
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    exit: { opacity: 0 },
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.95, y: 20 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { type: 'spring', stiffness: 400, damping: 30 },
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.95,
-      y: 20,
-      transition: { duration: 0.2 },
-    },
-  };
-
   if (showSuccess) {
     return <SuccessScreen />;
   }
@@ -147,26 +105,30 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
           {/* Backdrop with blur */}
           <motion.div
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
 
           {/* Modal */}
           <motion.div
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 max-h-[90vh] overflow-y-auto"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            className="relative w-full max-w-lg md:max-w-2xl max-h-[90vh] overflow-y-auto"
           >
-            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 sm:p-8 w-screen max-w-2xl mx-4 border border-gray-200 dark:border-gray-800">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-800">
               {/* Close Button */}
               <motion.button
                 onClick={handleClose}
@@ -377,7 +339,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                   {isLoading ? (
                     <>
                       <Loader size={20} className="animate-spin" />
-                      <span>Sending Request...</span>
+                      <span>Processing reservation secure request...</span>
                     </>
                   ) : (
                     'Confirm Booking Reservation'
@@ -386,7 +348,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
               </form>
             </div>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );

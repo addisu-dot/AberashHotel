@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 export function Navigation() {
@@ -27,10 +28,12 @@ export function Navigation() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <img
+            <Image
               src="/image/Logo.jpg"
               alt="Aberash Hotel Logo"
-              className="w-10 h-10 rounded-full object-cover shadow-md"
+              width={40}
+              height={40}
+              className="rounded-full object-cover shadow-md"
             />
             <span className="text-xl font-bold text-black dark:text-white leading-relaxed">
               ABERASH
