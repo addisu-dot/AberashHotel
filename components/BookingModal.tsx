@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, Home } from 'lucide-react';
+import { X, Calendar, Users, Home, Loader } from 'lucide-react';
 import { SuccessScreen } from './SuccessScreen';
 
 interface BookingFormData {
@@ -22,6 +22,8 @@ interface BookingModalProps {
 
 export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState<BookingFormData>({
     checkIn: '',
     checkOut: '',
@@ -60,19 +62,49 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/booking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setSubmitError(data.error || 'Failed to send booking request');
+        setIsLoading(false);
+        return;
+      }
+
       setShowSuccess(true);
+      setIsLoading(false);
+
       setTimeout(() => {
         setShowSuccess(false);
         onClose();
       }, 4000);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Network error. Please try again.';
+      setSubmitError(errorMessage);
+      setIsLoading(false);
     }
   };
 
   const handleClose = () => {
     setShowSuccess(false);
+    setIsLoading(false);
+    setSubmitError(null);
     setFormData({
       checkIn: '',
       checkOut: '',
@@ -254,6 +286,18 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                   <p className="text-red-500 text-sm">{errors.guests}</p>
                 )}
 
+                {submitError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                  >
+                    <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+                      ⚠️ {submitError}
+                    </p>
+                  </motion.div>
+                )}
+
                 {/* Room Type */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
@@ -321,11 +365,23 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 {/* Submit Button */}
                 <motion.button
                   type="submit"
-                  className="w-full py-4 bg-gradient-to-r from-[#d4af37] to-[#e5c158] hover:from-[#e5c158] hover:to-[#f5d876] text-black font-bold rounded-lg transition-all duration-300 shadow-lg"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={isLoading}
+                  className={`w-full py-4 font-bold rounded-lg transition-all duration-300 shadow-lg flex items-center justify-center gap-2 ${
+                    isLoading
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-[#d4af37] to-[#e5c158] hover:from-[#e5c158] hover:to-[#f5d876] text-black'
+                  }`}
+                  whileHover={!isLoading ? { scale: 1.02 } : {}}
+                  whileTap={!isLoading ? { scale: 0.98 } : {}}
                 >
-                  Confirm Booking Reservation
+                  {isLoading ? (
+                    <>
+                      <Loader size={20} className="animate-spin" />
+                      <span>Sending Request...</span>
+                    </>
+                  ) : (
+                    'Confirm Booking Reservation'
+                  )}
                 </motion.button>
               </form>
             </div>
