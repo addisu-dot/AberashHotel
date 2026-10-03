@@ -5,12 +5,13 @@ import { Footer } from '@/components/Footer';
 import { FloatingSocialWidgets } from '@/components/FloatingSocialWidgets';
 
 export const metadata: Metadata = {
-  title: 'Aberash Hotel - Luxury Hospitality',
-  description: 'Experience luxury meets serenity at Aberash Hotel. Premium accommodations, fine dining, and exceptional service.',
-  keywords: 'hotel, luxury, hospitality, accommodation, dining',
+  metadataBase: new URL('https://aberash-hotel.vercel.app'),
+  title: 'Aberash Hotel | Durame, Ethiopia',
+  description: 'Rooms, restaurant and garden in Durame, Ethiopia. Call 093 457 5243 or send a booking request online.',
+  keywords: 'Aberash Hotel, Durame hotel, Durame accommodation, Ethiopia hotel, restaurant',
   openGraph: {
-    title: 'Aberash Hotel',
-    description: 'Luxury Hospitality Experience',
+    title: 'Aberash Hotel | Durame, Ethiopia',
+    description: 'Rooms, restaurant and garden in Durame, Ethiopia.',
     images: ['/image/name.jpg'],
   },
 };

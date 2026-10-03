@@ -35,6 +35,8 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const todayISO = new Date().toISOString().slice(0, 10);
+
   const roomTypes = [
     { id: 'deluxe-suite', name: 'Deluxe Suite' },
     { id: 'executive-corridor', name: 'Executive Corridor Room' },
@@ -53,9 +55,13 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
       newErrors.guests = 'At least one guest is required';
     }
     if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
-    if (!/^\d{10,}/.test(formData.phone.replace(/\D/g, ''))) {
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (formData.phone.replace(/\D/g, '').length < 10) {
       newErrors.phone = 'Phone number must be at least 10 digits';
+    }
+    if (formData.checkIn && formData.checkIn < todayISO) {
+      newErrors.checkIn = 'Check-in date cannot be in the past';
     }
 
     setErrors(newErrors);
@@ -69,16 +75,32 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     setIsLoading(true);
     setSubmitError(null);
 
-    // Simulate network delay for demo
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setSubmitError(
+          data?.error || 'We could not send your request. Please try again or call us directly.'
+        );
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(false);
       setShowSuccess(true);
-
       setTimeout(() => {
         setShowSuccess(false);
         onClose();
       }, 4000);
-    }, 1500);
+    } catch {
+      setSubmitError('Network problem. Check your connection and try again, or call us directly.');
+      setIsLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -163,6 +185,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     </label>
                     <input
                       type="date"
+                      min={todayISO}
                       value={formData.checkIn}
                       onChange={(e) =>
                         setFormData({ ...formData, checkIn: e.target.value })
@@ -184,6 +207,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     </label>
                     <input
                       type="date"
+                      min={todayISO}
                       value={formData.checkOut}
                       onChange={(e) =>
                         setFormData({ ...formData, checkOut: e.target.value })

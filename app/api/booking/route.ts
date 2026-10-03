@@ -17,6 +17,16 @@ const roomTypeNames: Record<string, string> = {
   'garden-villa': 'Garden Villa',
 };
 
+// Guest-supplied text is placed inside an HTML email, so it must be escaped
+function esc(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: BookingRequest = await request.json();
@@ -28,6 +38,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      );
+    }
+
+    const inDate = new Date(checkIn);
+    const outDate = new Date(checkOut);
+    if (
+      Number.isNaN(inDate.getTime()) ||
+      Number.isNaN(outDate.getTime()) ||
+      outDate <= inDate ||
+      String(fullName).length > 100 ||
+      String(phone).length > 30 ||
+      !Number.isInteger(Number(adults)) || Number(adults) < 0 || Number(adults) > 20 ||
+      !Number.isInteger(Number(children)) || Number(children) < 0 || Number(children) > 20
+    ) {
+      return NextResponse.json(
+        { error: 'Please check your dates and details and try again.' },
+        { status: 400 }
+      );
+    }
+
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('EMAIL_USER / EMAIL_PASS are not set');
+      return NextResponse.json(
+        { error: 'Online booking is temporarily unavailable. Please call us to book.' },
+        { status: 503 }
       );
     }
 
@@ -43,7 +78,7 @@ export async function POST(request: NextRequest) {
     // Calculate number of nights
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
+    const nights = Math.max(1, Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)));
 
     // Create formatted email template
     const htmlContent = `
@@ -70,8 +105,8 @@ export async function POST(request: NextRequest) {
         <body>
           <div class="container">
             <div class="header">
-              <h1>✨ Booking Confirmation</h1>
-              <p>Your luxury retreat awaits at Aberash Hotel</p>
+              <h1>New Booking Request</h1>
+              <p>Submitted through the Aberash Hotel website</p>
             </div>
 
             <div class="section">
@@ -79,11 +114,11 @@ export async function POST(request: NextRequest) {
               <div class="info-grid">
                 <div class="info-item">
                   <div class="info-label">Guest Name</div>
-                  <div class="info-value">${fullName}</div>
+                  <div class="info-value">${esc(fullName)}</div>
                 </div>
                 <div class="info-item">
                   <div class="info-label">Contact Number</div>
-                  <div class="info-value">${phone}</div>
+                  <div class="info-value"><a href="tel:${esc(String(phone).replace(/[^\d+]/g, ''))}">${esc(phone)}</a></div>
                 </div>
               </div>
             </div>
@@ -105,7 +140,7 @@ export async function POST(request: NextRequest) {
                 </div>
                 <div class="info-item">
                   <div class="info-label">Room Type</div>
-                  <div class="info-value">${roomTypeNames[roomType] || roomType}</div>
+                  <div class="info-value">${esc(roomTypeNames[roomType] || roomType)}</div>
                 </div>
               </div>
             </div>
@@ -115,26 +150,26 @@ export async function POST(request: NextRequest) {
               <div class="info-grid">
                 <div class="info-item">
                   <div class="info-label">Adults</div>
-                  <div class="info-value">${adults}</div>
+                  <div class="info-value">${esc(adults)}</div>
                 </div>
                 <div class="info-item">
                   <div class="info-label">Children</div>
-                  <div class="info-value">${children}</div>
+                  <div class="info-value">${esc(children)}</div>
                 </div>
               </div>
             </div>
 
             <div class="highlight">
-              <strong>⏰ Next Steps:</strong> Our team will contact you shortly to confirm your booking, discuss special preferences, and answer any questions you may have.
+              <strong>Next step:</strong> Call or message the guest to confirm availability and the booking.
             </div>
 
             <div style="text-align: center;">
-              <p style="color: #666; margin: 15px 0;">Thank you for choosing Aberash Hotel for your stay.</p>
+              <p style="color: #666; margin: 15px 0;">Reply to the guest by phone using the number above.</p>
             </div>
 
             <div class="footer">
-              <p>Aberash Hotel &copy; 2024 • Luxury Hospitality | All Rights Reserved</p>
-              <p>This is an automated message. Please do not reply to this email.</p>
+              <p>Aberash Hotel website booking form</p>
+              <p>Automated message from the website.</p>
             </div>
           </div>
         </body>
@@ -145,9 +180,8 @@ export async function POST(request: NextRequest) {
     const info = await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: 'aberashhotel@gmail.com',
-      subject: `New Booking Request from ${fullName}`,
+      subject: `New Booking Request from ${esc(fullName)}`,
       html: htmlContent,
-      replyTo: phone,
     });
 
     console.log('Email sent:', info.messageId);
@@ -163,13 +197,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Booking API error:', error);
 
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-
     return NextResponse.json(
       {
         success: false,
-        error: 'Failed to process booking request',
-        details: errorMessage,
+        error: 'We could not send your request. Please try again or call us to book.',
       },
       { status: 500 }
     );

@@ -10,8 +10,8 @@ export function ContactCards() {
       icon: Phone,
       title: 'Phone',
       items: [
-        { label: '0965481717', href: 'tel:+2510965481717' },
-        { label: '0934575243', href: 'tel:+2510934575243' },
+        { label: '096 548 1717', href: 'tel:+2510965481717' },
+        { label: '093 457 5243', href: 'tel:+2510934575243' },
       ],
     },
     {

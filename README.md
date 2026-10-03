@@ -1,6 +1,6 @@
-# Aberash Hotel - Modern Luxury Website
+# Aberash Hotel Website
 
-A sleek, Gen Z-inspired hotel website built with **Next.js**, **Tailwind CSS**, and **Framer Motion**.
+A responsive website for Aberash Hotel in Durame, Ethiopia, built with **Next.js**, **Tailwind CSS**, and **Framer Motion**.
 
 ## 🎨 Design Philosophy
 
@@ -8,7 +8,7 @@ A sleek, Gen Z-inspired hotel website built with **Next.js**, **Tailwind CSS**, 
 - **Dark/Light Mode**: Seamless theme switching with localStorage persistence
 - **Responsive**: Fully responsive design from mobile to desktop
 - **Smooth Animations**: Framer Motion for elegant transitions
-- **Accessible**: WCAG compliant with semantic HTML
+- **Accessible basics**: semantic HTML, labelled buttons and keyboard-friendly forms
 
 ## 🚀 Quick Start
 
@@ -125,3 +125,9 @@ Phase 2 plans:
 ## 📄 License
 
 Private project for Aberash Hotel.
+
+## Booking requests
+The booking form sends an email to the hotel through `/api/booking`. Set `EMAIL_USER` and `EMAIL_PASS` (a Gmail app password) in your Vercel project settings, or the form will ask guests to call instead. See `EMAIL_SETUP.md`.
+
+## Author
+Built by Addisu Legese Meharu ([github.com/addisu-dot](https://github.com/addisu-dot)).

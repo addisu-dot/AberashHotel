@@ -15,7 +15,7 @@ export function FloatingSocialWidgets() {
     {
       id: 'tiktok',
       icon: Music,
-      href: 'https://www.tiktok.com/@aberash.hotel?_r=1&_t=ZS-96rVPgVmxkK',
+      href: 'https://www.tiktok.com/@aberash.hotel',
       label: 'TikTok',
       color: '#000000',
     },

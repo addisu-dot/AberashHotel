@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { Facebook, Phone, Mail, Music } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -89,6 +88,7 @@ export function Footer() {
             <div className="flex gap-4">
               <motion.a
                 href="https://www.facebook.com/profile.php?id=61570831670914"
+                aria-label="Aberash Hotel on Facebook"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 bg-gray-800 hover:bg-[#d4af37] text-gray-300 hover:text-black rounded-lg transition-all duration-300"
@@ -98,7 +98,8 @@ export function Footer() {
                 <Facebook size={20} />
               </motion.a>
               <motion.a
-                href="https://www.tiktok.com/@aberash.hotel?_r=1&_t=ZS-96rVPgVmxkK"
+                href="https://www.tiktok.com/@aberash.hotel"
+                aria-label="Aberash Hotel on TikTok"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3 bg-gray-800 hover:bg-[#d4af37] text-gray-300 hover:text-black rounded-lg transition-all duration-300"
@@ -115,14 +116,7 @@ export function Footer() {
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs gap-4">
             <p>© 2026 Aberash Hotel. All rights reserved.</p>
-            <div className="flex gap-6">
-              <Link href="#" className="hover:text-[#d4af37] transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="#" className="hover:text-[#d4af37] transition-colors">
-                Terms of Service
-              </Link>
-            </div>
+            <p>Website designed &amp; built by Addisu Legese Meharu</p>
           </div>
         </div>
       </div>
